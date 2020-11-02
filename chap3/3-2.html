@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-2</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      const cvs = document.createElement('canvas');
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+
+      var ctx = cvs.getContext("2d");
+
+      const box_num = 3;
+      const boxes = Array(box_num);
+      for (let i = 0; i < box_num; i++) {
+        boxes[i] = new Box(boxes.length, i);
+        boxes[i].draw(ctx);
+      }
+
+      function Box(box_num, index) {
+        const me = this;
+        this.d = 100;
+        this.x = cvs.width / box_num * index + cvs.width / box_num / 2 - this.d / 2;
+        this.y = (cvs.height - this.d) / 2;
+        this.isDragged = false;
+        this.lastX = 0;
+        this.lastY = 0;
+
+        this.draw = function (ctx) {
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 5;
+          ctx.strokeRect(me.x, me.y, me.d, me.d);
+        }
+
+        window.addEventListener('mousedown', function (e) {
+          const dx = e.layerX - me.x;
+          const dy = e.layerY - me.y;
+          if (dx >= 0 && dx <= me.d && dy >= 0 && dy <= me.d) {
+            me.isDragged = true;
+            me.lastX = e.layerX;
+            me.lastY = e.layerY;
+          }
+        });
+
+        window.addEventListener('mouseup', function (e) {
+          me.isDragged = false;
+        });
+
+        window.addEventListener('mousemove', function (e) {
+          if (me.isDragged) {
+            const dx = e.layerX - me.lastX;
+            const dy = e.layerY - me.lastY;
+            me.lastX = e.layerX;
+            me.lastY = e.layerY;
+
+            me.x += dx;
+            me.y += dy;
+          }
+        });
+      }
+
+      function checkOverlap(boxes) {
+        if (boxes.length > 1) {
+          for (let i = 0; i < boxes.length - 1; i++) {
+            for (j = 1; j < boxes.length; j++) {
+              if (i === j) continue;
+
+              const dx = boxes[j].x - boxes[i].x;
+              const dy = boxes[j].y - boxes[i].y;
+              console.log(`i: ${i}, j: ${j}, dx: ${dx}, dy: ${dy}`);
+              if (Math.abs(dx) < boxes[i].d && Math.abs(dy) < boxes[i].d) {
+                let x = 0, y = 0;
+                if (dx >= 0) x = boxes[i].x + dx;
+                else x = boxes[i].x;
+
+                if (dy >= 0) y = boxes[i].y + dy;
+                else y = boxes[i].y;
+
+                ctx.fillStyle = 'rgba(150, 50, 50, 0.5)';
+                ctx.fillRect(x, y, boxes[i].d - Math.abs(dx), boxes[i].d - Math.abs(dy));
+              }
+            }
+          }
+        }
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+        checkOverlap(boxes);
+        for (const box of boxes) {
+          box.draw(ctx);
+        }
+
+        //枠を描く
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0, 0, cvs.width, cvs.height);
+      }
+
+      setInterval(render, 30);
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-1</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 600;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+
+      var ctx = cvs.getContext("2d");
+
+      var gravity = 0.5; //重力
+      var bottom = 450; //床のY座標
+      const font_size = 40;
+
+      const string = "University of Tsukuba";
+      let chars = [];
+      for (let i = 0; i < string.length; i++) {
+        const char = new Char(string, i);
+        chars.push(char);
+      }
+
+      function Char(chars, index) {
+        const me = this;
+
+        let length = 0;
+        for (let i = 0; i < index; i++) {
+          length += ctx.measureText(chars[i]).width;
+        }
+
+        this.x = length * (font_size / 8);
+        this.y = 0;
+        this.vy = 0;
+        this.char = chars[index];
+        this.bounce = -(Math.random()*0.2 + .65); //はねかえり
+
+        this.draw = function (ctx) {
+          ctx.fillStyle = "black";
+          ctx.font = `bold ${font_size}px sans-serif`;
+          ctx.textBaseline = "bottom";
+          ctx.fillText(me.char, me.x, me.y);
+        };
+      }
+
+      window.addEventListener('mouseup', function () {
+        for (const char of chars) {
+          char.y = (Math.random() - 0.5) * font_size * 2;
+          char.vy = 0;
+        }
+      });
+
+      function render() {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+        for (const char of chars) {
+
+          char.vy += gravity;
+          char.y += char.vy;
+
+          if (char.y > bottom) {
+            char.y = bottom;
+            char.vy *= char.bounce;
+          }
+
+          char.draw(ctx);
+        }
+
+        //地面を描く
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        ctx.moveTo(0, bottom);
+        ctx.lineTo(cvs.width, bottom);
+        ctx.stroke();
+      }
+
+      setInterval(render, 30);
+    </script>
+  </body>
+
+</html>

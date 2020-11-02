@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-7</title>
+  </head>
+
+  <body>
+    <div id="container2"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container2').appendChild(cvs);
+      var ctx1 = cvs.getContext("2d");
+
+      //処理用のキャンバスを作成
+      var cvs2 = document.createElement("canvas");
+      cvs2.width = 500;
+      cvs2.height = 500;
+      var ctx2 = cvs2.getContext("2d");
+
+      //画像オブジェクトを作成
+      var img = document.createElement("img");
+
+      const calcIndex = (x, y) => y * 500 * 4 + x * 4;
+
+      //指定した範囲のRGBの平均を計算
+      function calcLaplacian(bmp, _x, _y, width, height) {
+        //境界を定義
+        var left = _x;
+        if (left < 0) {
+          left = 0;
+        }
+        var right = left + (width - 1);
+        if (right > 500) {
+          right = 500;
+        }
+        var top = _y;
+        if (top < 0) {
+          top = 0;
+        }
+        var bottom = top + (height - 1);
+        if (bottom > 500) {
+          bottom = 500;
+        }
+
+        let gray = 0;
+        // 上下左右のピクセルを取得
+        if ((right - left) % 2 == 0 && (bottom - top) % 2 == 0) {
+          gray = bmp.data[calcIndex(left, top)] + bmp.data[calcIndex(left + 1, top)] + bmp.data[calcIndex(left + 2, top)] + bmp.data[calcIndex(left, top + 1)] - 8 * bmp.data[calcIndex(left + 1, top + 1)] + bmp.data[calcIndex(left + 2, top + 1)] + bmp.data[calcIndex(left, bottom)] + bmp.data[calcIndex(left + 1, bottom)] + bmp.data[calcIndex(left + 2, bottom)];
+        } else {
+          gray = 0;
+        }
+        return gray*2;
+      }
+
+      //画像の読み込みが完了した時に実行する関数
+      async function onLoadComplete() {
+        //x:0, y:0 の位置に画像を転写
+        //処理用のキャンバスに転写
+        ctx2.drawImage(img, 0, 0);
+
+        //処理用のイメージデータを取得
+        var bmp2 = ctx2.getImageData(0, 0, 500, 500);
+
+        //描画用のイメージデータを取得
+        var bmp = ctx1.getImageData(0, 0, 500, 500);
+
+        // グレースケールに変換
+        for (let x = 0; x < 500; x++) {
+          for (let y = 0; y < 500; y++) {
+            const index = calcIndex(x, y);
+            const gray = (bmp2.data[index] + bmp2.data[index + 1] + bmp2.data[index + 2]) / 3;
+
+            bmp2.data[index] = gray;
+            bmp2.data[index + 1] = gray;
+            bmp2.data[index + 2] = gray;
+            bmp2.data[index + 3] = 255;
+          }
+        }
+
+        //走査
+        const filter_size = 3;
+        for (var y = 0, i = 0; y < 500; y++) {
+          for (var x = 0; x < 500; x++, i += 4) {
+            var gray = calcLaplacian(bmp2, x - ((filter_size - 1) / 2), y - ((filter_size - 1) / 2), filter_size, filter_size);
+            bmp.data[i] = gray;
+            bmp.data[i + 1] = gray;
+            bmp.data[i + 2] = gray;
+            bmp.data[i + 3] = 255;
+          }
+        }
+
+        //イメージデータを転写
+        ctx1.putImageData(bmp, 0, 0);
+      }
+
+      //先ほど定義した関数を画像オブジェクトに登録
+      //画像が"load"された時に関数が一度だけ実行される
+      img.addEventListener("load", onLoadComplete, false);
+
+      //画像を読み込む
+      img.src = "img/pizza.jpg";
+
+
+    </script>
+  </body>
+
+</html>

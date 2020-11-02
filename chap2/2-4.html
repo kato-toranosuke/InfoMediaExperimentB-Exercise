@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-4</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+      var ctx = cvs.getContext("2d");
+
+      const r = 200;
+      const imgdata = ctx.getImageData(0, 0, cvs.width, cvs.height);
+
+      function hsv2rgb(h, s, v) {
+        if (h < 0) {
+          h = h + Math.ceil(-h / 360) * 360;
+        } else if (h > 360) {
+          h = h % 360;
+        }
+        if (s < 0) {
+          s = 0;
+        } else if (s > 255) {
+          s = 255;
+        }
+        if (v < 0) {
+          v = 0;
+        } else if (v > 255) {
+          v = 255;
+        }
+        if (s == 0) {
+          v = 0 | v;
+          return [v, v, v];
+        }
+        var r, g, b;
+        s /= 255;
+        var i = (0 | (h / 60)) % 6,
+          f = (h / 60) - i,
+          p = v * (1 - s),
+          q = v * (1 - f * s),
+          t = v * (1 - (1 - f) * s);
+        switch (i) {
+          case 0: r = v; g = t; b = p; break;
+          case 1: r = q; g = v; b = p; break;
+          case 2: r = p; g = v; b = t; break;
+          case 3: r = p; g = q; b = v; break;
+          case 4: r = t; g = p; b = v; break;
+          case 5: r = v; g = p; b = q; break;
+        }
+        return [0 | r, 0 | g, 0 | b];
+      }
+
+      let i = 0;
+      for (let y = 0; y < cvs.height; y++) {
+        const new_y = y - cvs.height / 2;
+        for (let x = 0; x < cvs.width; x++) {
+          const new_x = x - cvs.width / 2;
+
+          const d = Math.pow(new_x, 2) + Math.pow(new_y, 2);
+          if (Math.pow(r, 2) >= d) {
+            // hsvを得る
+            const theta = Math.asin(new_y / Math.sqrt(d)) * 180 / Math.PI;
+            let hue = 0;
+            if (new_x < 0) {
+              hue = 180-theta;
+            }else{
+              hue = theta;
+            }
+            const rgb = hsv2rgb(hue, 255, 255);
+
+            imgdata.data[i] = rgb[0];
+            imgdata.data[i + 1] = rgb[1];
+            imgdata.data[i + 2] = rgb[2];
+          } else {
+            imgdata.data[i] = 255;
+            imgdata.data[i + 1] = 255;
+            imgdata.data[i + 2] = 255;
+          }
+          imgdata.data[i + 3] = 255;
+          i += 4;
+        }
+      }
+
+      ctx.putImageData(imgdata, 0, 0);
+    </script>
+  </body>
+
+</html>

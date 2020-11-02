@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-3</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 150;
+      document.getElementById('container').appendChild(cvs);
+
+      var ctx = cvs.getContext("2d");
+
+      const friction = 0.97;
+      let cars = [];
+      for (let i = 0; i < 3; i++) {
+        const car = new Car(i);
+        cars.push(car);
+      }
+
+      function Car(index) {
+        var me = this;
+
+        this.x = cvs.width / 3 * index;
+        this.y = cvs.height - 50;
+        this.vx = 5;
+        this.carWidth = 50;
+        this.direction = 1;
+
+        this.draw = function (ctx) {
+          ctx.strokeStyle = "black";
+          ctx.fillStyle = "black";
+
+          ctx.strokeRect(me.x, me.y, me.carWidth, 25);
+
+          ctx.beginPath();
+          ctx.moveTo(me.x, me.y);
+          ctx.arc(me.x + 10, me.y + 25, 5, 0, 2 * Math.PI, true);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(me.x, me.y);
+          ctx.arc(me.x + 40, me.y + 25, 5, 0, 2 * Math.PI, true);
+          ctx.fill();
+        };
+
+        this.checkSpeed = function () {
+          if (me.vx < 0.1) me.vx = 5; //速度が0.1より小さくなった時、速度を5に戻す
+        };
+        this.checkBounce = function () {
+          if (me.x > cvs.width - me.carWidth) me.direction = -1; // 右の境目にぶつかったら方向を変える
+          else if (me.x < 0) me.direction = 1; //左の境目も同様
+        };
+      }
+
+      function checkCollision(cars) {
+        for (let i = 0; i < cars.length-1; i++) {
+          for (let j = i+1; j < cars.length; j++) {
+            if (i === j) continue;
+            const dx = Math.abs(cars[i].x - cars[j].x);
+            if (dx <= cars[i].carWidth-1) {
+              cars[i].direction *= -1;
+              cars[j].direction *= -1;
+            }
+          }
+        }
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, 500, 500);
+
+        checkCollision(cars);
+        for (const car of cars) {
+          car.x += car.vx * car.direction;
+          car.vx *= friction; //摩擦の計算
+          car.checkSpeed();
+          car.checkBounce();
+
+          car.draw(ctx);
+        }
+
+        //地面を描く
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        ctx.moveTo(0, cvs.height - 20);
+        ctx.lineTo(500, cvs.height - 20);
+        ctx.stroke();
+      }
+
+      setInterval(render, 30);
+    </script>
+  </body>
+
+</html>

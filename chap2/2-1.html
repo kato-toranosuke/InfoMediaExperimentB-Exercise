@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-1</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+      var ctx = cvs.getContext("2d");
+
+      function affine(ctx, i) {
+        ctx.translate(cvs.width / 2, cvs.height / 2);
+
+        ctx.rotate(((45 * i + 20)/ 180) * Math.PI);
+        ctx.translate(0, 200);
+        ctx.rotate((90  / 180) * Math.PI);
+        ctx.translate(-25,-50);
+        // ctx.fillStyle = `rgba(${35 * i}, 100, 100, .5)`;
+      }
+
+      for (var i = 0; i < 8; i++) {
+        ctx.save();
+        affine(ctx, i);
+        ctx.fillRect(0, 0, 50, 100);
+        ctx.restore();
+      }
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-5</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      (function () {
+        var cvs = document.createElement("canvas");
+        cvs.width = 600;
+        cvs.height = 600;
+        document.getElementById('container').appendChild(cvs);
+        var ctx = cvs.getContext("2d");
+
+
+        const r = 50;
+        const amp = (180 * Math.PI) / 180;
+        ctx.strokeStyle = 'black';
+
+        for (let i = 0; i < 6; i++) {
+          for (let j = 0; j < 6; j++) {
+            // 座標系の原点を移動する
+            ctx.save();
+            ctx.translate((r + r * Math.cos(amp / 2)) * (2 * i + 1), (r + r * Math.cos(amp / 2)) * (2 * j + 1));
+
+            ctx.save();
+            ctx.translate(0, -r);
+            ctx.rotate((-90 * Math.PI) / 180);
+            ctx.beginPath();
+            ctx.arc(0, 0, r, -amp / 2, amp / 2, 1);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(0, r);
+            ctx.rotate((90 * Math.PI) / 180);
+            ctx.beginPath();
+            ctx.arc(0, 0, r, -amp / 2, amp / 2, 1);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(r, 0);
+            ctx.rotate((0 * Math.PI) / 180);
+            ctx.beginPath();
+            ctx.arc(0, 0, r, -amp / 2, amp / 2, 1);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(-r, 0);
+            ctx.rotate((180 * Math.PI) / 180);
+            ctx.beginPath();
+            ctx.arc(0, 0, r, -amp / 2, amp / 2, 1);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(Math.sqrt(r), Math.sqrt(r));
+            ctx.rotate((60 * Math.PI) / 180);
+            ctx.beginPath();
+            // ctx.arc(0, 0, r, -amp / 2, amp / 2, 1);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.restore();
+          }
+        }
+
+      })();
+    </script>
+  </body>
+
+</html>

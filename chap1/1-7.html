@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-7</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      (function () {
+        var cvs = document.createElement("canvas");
+        cvs.width = 500;
+        cvs.height = 500;
+        document.getElementById('container').appendChild(cvs);
+        var ctx = cvs.getContext("2d");
+
+        const d = cvs.width / 2 + 100;
+        ctx.fillStyle = 'black';
+        ctx.translate(cvs.width / 2, cvs.height / 2);
+
+        let total_angle = 0;
+        while (total_angle < 2 * Math.PI) {
+          const theta = (Math.random() * 7 * Math.PI) / 180;
+          total_angle += theta;
+          ctx.save()
+
+          ctx.rotate(total_angle);
+          ctx.beginPath();
+          ctx.moveTo(50 + Math.random() * 100, 0);
+          ctx.lineTo(d, 0);
+          ctx.lineTo(d, 5 + Math.random() * 3);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.restore();
+        }
+      })();
+    </script>
+  </body>
+
+</html>

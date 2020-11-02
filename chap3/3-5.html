@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-5</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 800;
+      cvs.height = 800;
+      document.getElementById('container').appendChild(cvs);
+
+      var ctx = cvs.getContext("2d");
+
+      const ball_num = 3;
+      const balls = [];
+      for (let i = 0; i < ball_num; i++) {
+        const ball = new Ball();
+        ball.nextIndex = i + 1;
+        ball.preIndex = i - 1;
+        balls.push(ball);
+      }
+      balls[balls.length - 1].nextIndex = 0;
+      balls[0].preIndex = balls.length - 1;
+
+      const stableDistance = 100;
+      balls.forEach((ball, index) => {
+        const angle = 2 * Math.PI / balls.length * index;
+
+        ball.x = cvs.width / 2 + 100 * Math.cos(angle);
+        ball.y = cvs.height / 2 + 100 * Math.sin(angle);
+      });
+
+      function Ball() {
+        var me = this;
+
+        this.x = 0;
+        this.y = 0;
+        this.isDragged = false;
+        this.nextIndex = 0; // 循環リストにする為のプロパティ
+        this.preIndex = 0;
+
+        this.draw = function (ctx) {
+          ctx.strokeStyle = "#000";
+          ctx.fillStyle = "#fff";
+          ctx.beginPath();
+          ctx.arc(me.x, me.y, 20, 0, 2 * Math.PI, true);
+          ctx.stroke();
+          ctx.fill();
+        };
+
+        window.addEventListener("mousedown", function (e) {
+          var dx = me.x - e.layerX;
+          var dy = me.y - e.layerY;
+          me.isDragged = Math.sqrt(dx * dx + dy * dy) < 20;
+        });
+
+        window.addEventListener("mousemove", function (e) {
+          if (me.isDragged) {
+            me.x = e.layerX;
+            me.y = e.layerY;
+          }
+        });
+
+        window.addEventListener("mouseup", function (e) {
+          me.isDragged = false;
+        });
+      }
+
+
+      function render() {
+        // ブレンドモードを設定
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+        // ドラッグされているcircleのindexを取得
+        let dragged_circle_index = 0;
+        for (let i = 0; i < balls.length; i++) {
+          dragged_circle_index = balls[i].isDragged ? i : dragged_circle_index;
+        }
+        const pairs = [];
+        for (let i = 0; i < balls.length; i++) {
+          const obj = new Object();
+          obj.target = dragged_circle_index;
+          pairs[i] = obj;
+        }
+
+        // 必要な数値を計算する
+        for (let i = 0, last_index = dragged_circle_index; i < balls.length; i++) {
+          let ball1, ball2;
+          ball1 = balls[last_index];
+          ball2 = balls[ball1.nextIndex];
+          last_index = ball1.nextIndex;
+
+          var dx = ball1.x - ball2.x; //オブジェクト間のx軸成分の差
+          var dy = ball1.y - ball2.y; //オブジェクト間のy軸成分の差
+          var distance = Math.sqrt(dx * dx + dy * dy); //オブジェクト間の距離
+          var f = (stableDistance - distance); //ばねの力
+          var vx = f * dx / 1000;
+          var vy = f * dy / 1000;
+
+          if (!ball1.isDragged) {
+            ball1.x += vx;
+            ball1.y += vy;
+          }
+          if (!ball2.isDragged) {
+            ball2.x += -vx;
+            ball2.y += -vy;
+          }
+        }
+
+        // 線を描く
+        ctx.strokeStyle = "black";
+        for (let i = 0; i < balls.length; i++) {
+          let ball1, ball2;
+          ball1 = balls[i];
+          ball2 = balls[ball1.nextIndex];
+
+          ctx.beginPath();
+          ctx.moveTo(ball1.x, ball1.y);
+          ctx.lineTo(ball2.x, ball2.y);
+          ctx.stroke();
+        }
+
+        // ballを描く
+        for (let i = 0; i < balls.length; i++) {
+          const ball = balls[i];
+          ball.draw(ctx);
+        }
+      }
+
+      // setInterval(render, 30);
+      setInterval(render, 30);
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-6</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      const width = 500, height = 500;
+      const cvs = document.createElement("canvas");
+      cvs.width = width;
+      cvs.height = height;
+      document.getElementById("container").appendChild(cvs);
+      const ctx = cvs.getContext("2d");
+
+      ctx.translate(width / 2, height / 2);
+
+      const a = 200;
+      const n = 0.25;
+      const angle_diff = 2 * Math.PI / 180;
+      let theta = 0;
+      const r = theta => a * Math.sin(n * theta);
+      let R = 0;
+
+      // 線のスタイル
+      ctx.strokeStyle = "tomato";
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      R = r(theta);
+      ctx.moveTo(R * Math.cos(theta), R * Math.sin(theta));
+      while(theta <= 8*Math.PI){
+        theta += angle_diff;
+        R = r(theta);
+        ctx.lineTo(R*Math.cos(theta), R*Math.sin(theta));
+      }
+      ctx.stroke();
+    </script>
+  </body>
+
+</html>

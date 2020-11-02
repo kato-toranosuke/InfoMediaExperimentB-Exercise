@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-8</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      (function () {
+        const cvs = document.createElement("canvas");
+        cvs.width = 500;
+        cvs.height = 500;
+        document.getElementById('container').appendChild(cvs);
+        const ctx = cvs.getContext("2d");
+
+        //フォントを設定
+        const font_size = 20;
+        ctx.font = `${font_size}px sans-serif`;
+        // 文字と文字色を格納する配列
+        let input_chars = [];
+
+        //入力文字列を蓄積
+        let str = "press any key:";
+        ctx.fillStyle = "black";
+        ctx.fillText(str, 0, font_size);
+
+        //画面を再描画
+        function render(char_obj) {
+          ctx.fillStyle = `rgb(${char_obj.color.r}, ${char_obj.color.g}, ${char_obj.color.b})`;
+          ctx.fillText(char_obj.char, char_obj.p.x, char_obj.p.y);
+        }
+
+        //キーボードイベントを登録
+        window.addEventListener("keydown", function (e) {
+          //押されたキーを取得
+          var key = String.fromCharCode(e.which);
+
+          const char_obj = generate_char_obj(key, str);
+          input_chars.push(char_obj);
+
+          console.log(char_obj.p.x);
+
+          render(char_obj);
+        });
+
+        function generate_char_obj(key) {          
+          //文字列を蓄積
+          str = str + key;
+
+          // 配列に格納
+          let x = 0; // 文字のx座標
+          let y = font_size; // 文字のy座標
+          if (input_chars.length > 0) {
+            const last_char = input_chars[input_chars.length - 1];
+            x = last_char.p.x + ctx.measureText(last_char.char).width;
+            y = last_char.p.y;
+            let next_char_x = x + ctx.measureText(key).width;
+            if (next_char_x > cvs.width) {
+              x = 0;
+              y = last_char.p.y + font_size;
+            }
+          } else {
+            x = ctx.measureText(str).width;
+            y = font_size;
+          }
+
+          const char_obj = {
+            char: key,
+            color: {
+              r: Math.random() * 255,
+              g: Math.random() * 255,
+              b: Math.random() * 255
+            },
+            p: {
+              x: x,
+              y: y
+            }
+          };
+
+          return char_obj;
+        }
+      })();
+
+    </script>
+  </body>
+
+</html>

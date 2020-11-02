@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-4</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+
+      var ctx = cvs.getContext("2d");
+
+      var bounce = -0.7;
+      var gravity = 0.5;
+      var friction = 0.97;
+
+      var circle = new Circle();
+      circle.x = 500 / 2;
+      circle.y = 500 / 2;
+      circle.vx = Math.random() * 10 - 5;
+      circle.vy = -10;
+
+      const frame_num = 10;
+      let history = [];
+      let last_time = new Date().getTime();
+
+      function Circle() {
+        var me = this;
+
+        this.x = 0;
+        this.y = 0;
+        this.previousX = 0;
+        this.previousY = 0;
+        this.vx = 0;
+        this.vy = 0;
+        this.isDragged = false;
+
+        this.draw = function (ctx) {
+          ctx.beginPath();
+          ctx.fillStyle = "red";
+          ctx.strokeStyle = "black";
+          ctx.arc(me.x, me.y, 20, 0, 2 * Math.PI, true);
+          ctx.fill();
+          ctx.stroke();
+        };
+
+        window.addEventListener("mousedown", function (e) {
+          var dx = me.x - e.layerX;
+          var dy = me.y - e.layerY;
+          me.isDragged = Math.sqrt(dx * dx + dy * dy) < 20;
+          if (me.isDragged) {
+            me.vx = 0;
+            me.vy = 0;
+            me.previousX = e.layerX;
+            me.previousY = e.layerY;
+          }
+        });
+
+        window.addEventListener("mouseup", function () {
+          me.isDragged = false;
+        });
+
+        window.addEventListener("mousemove", function (e) {
+          if (me.isDragged) {
+            me.x = e.layerX;
+            me.y = e.layerY;
+
+            me.vx = e.layerX - me.previousX;
+            me.vy = e.layerY - me.previousY;
+
+            me.previousX = e.layerX;
+            me.previousY = e.layerY;
+          }
+        });
+      }
+
+      function calcFriction() {
+        if (circle.y + 20 > 500) circle.vx *= friction;
+      }
+
+      function calcBounce() {
+        var left = 0;
+        var right = 500;
+        var top = 0;
+        var bottom = 500;
+
+        if (circle.x + 20 > right) {
+          circle.x = right - 20;
+          circle.vx *= bounce;
+        } else if (circle.x - 20 < left) {
+          circle.x = left + 20;
+          circle.vx *= bounce;
+        }
+        if (circle.y + 20 > bottom) {
+          circle.y = bottom - 20;
+          circle.vy *= bounce;
+        } else if (circle.y - 20 < top) {
+          circle.y = top + 20;
+          circle.vy *= bounce;
+        }
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, 500, 500);
+
+        if (!circle.isDragged) {
+          circle.vy += gravity; //重力計算
+          circle.x += circle.vx; //速度計算
+          circle.y += circle.vy; //速度計算
+          calcFriction(); //摩擦計算
+          calcBounce(); //はねかえり計算 
+        }
+
+        // 残像を描く
+        for (let i = 0; i < history.length; i++) {
+          ctx.beginPath();
+          const alpha = .1 + .9 / history.length * i;
+          ctx.fillStyle = `rgba(255,0,0,${alpha})`;
+          ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
+          ctx.arc(history[i].x, history[i].y, 20, 0, 2 * Math.PI, true);
+          ctx.fill();
+          ctx.stroke();
+          ctx.closePath();
+        }
+
+        circle.draw(ctx);
+
+        // 履歴を記録する(50ミリ秒ごと)
+        const now_time = new Date().getTime();
+        const delta = now_time - last_time;
+        if (delta > 50) {
+          if (history.length >= frame_num) history.shift();
+          history.push({ x: circle.x, y: circle.y });
+          last_time = now_time;
+        }
+
+        //地面を描く
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        ctx.moveTo(0, 500);
+        ctx.lineTo(500, 500);
+        ctx.stroke();
+      }
+
+      setInterval(render, 30);
+    </script>
+  </body>
+
+</html>

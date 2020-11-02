@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1-2</title>
+</head>
+<body>
+  <div id="container"></div>
+  <script type="text/javascript">
+    var cvs = document.createElement("canvas");
+    cvs.width = 500;
+    cvs.height = 500;
+    document.getElementById("container").appendChild(cvs);
+    var ctx = cvs.getContext("2d");
+
+    /* ここから描画処理 */
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * 500 -10;
+      const y = Math.random() * 500 -10;
+      const w = Math.random() * 100 + 10;
+      const h = Math.random() * 100 + 10;
+
+      // 色
+      const r = Math.random() * 255;
+      const g = Math.random() * 255;
+      const b = Math.random() * 255;
+
+      ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    const font_size = 50;
+    ctx.font = `${font_size}px monospace`;
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "gray";
+    // ctx.strokeStyle = "rgba(150, 150, 150, 0.8)";
+
+    const words = ["THIS", "IS", "A", "FANTASTIC", "BEAUTIFUL", "PICTURE!"];
+    const h_interval = 500 / words.length;
+    for (let i = 0; i < words.length; i++) {
+      const word_width = ctx.measureText(words[i]).width;
+      
+      const word_x = (500 - word_width) / 2;
+      // ctx.strokeText(words[i], word_x, h_interval*(i));
+      ctx.fillText(words[i], word_x, h_interval*(i));
+
+      // 下線
+      // ctx.fillRect(word_x, h_interval * (i+1) - 20, word_width, 5);
+      // ctx.strokeRect(word_x, h_interval * (i+1) - 20, word_width, 5);
+    }
+  </script>
+</body>
+</html>

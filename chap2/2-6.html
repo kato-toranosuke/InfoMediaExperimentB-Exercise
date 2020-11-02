@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-8</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+      var ctx = cvs.getContext("2d");
+
+      var img = document.createElement("img");
+      function onLoad() {
+        ctx.drawImage(img, 0, 0);
+        var bmp = ctx.getImageData(0, 0, 500, 500);
+        for (var y = 0, i = 0; y < 500; y++) {
+          for (var x = 0; x < 500; x++, i += 4) {
+            const R = (bmp.data[i] * .393) + (bmp.data[i + 1] * .769) + (bmp.data[i + 2] * .189);
+            const G = (bmp.data[i] * .349) + (bmp.data[i + 1] * .686) + (bmp.data[i + 2] * .168);
+            const B = (bmp.data[i] * .272) + (bmp.data[i + 1] * .534) + (bmp.data[i + 2] * .131);
+
+            bmp.data[i] = R;
+            bmp.data[i+1] = G;
+            bmp.data[i+2] = B;
+            bmp.data[i+3] = 255;
+
+          }
+        }
+        ctx.putImageData(bmp, 0, 0);
+      }
+
+      img.addEventListener("load", onLoad, false);
+      img.src = "img/pizza.jpg";
+
+    </script>
+  </body>
+
+</html>

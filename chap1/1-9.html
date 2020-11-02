@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1-9</title>
+</head>
+<body>
+  <div id="container"></div>
+  <script type="text/javascript">
+    (function () {
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+      var ctx = cvs.getContext("2d");
+
+      ctx.lineWidth = 20;
+
+      //マウス押下フラグ
+      var isdrawing = false;
+
+      //直前のマウス位置
+      var lastX;
+      var lastY;
+
+      //描画の開始
+      cvs.addEventListener("mousedown", function (e) {
+        lastX = e.layerX;
+        lastY = e.layerY;
+
+        // 太さ、色の設定
+        ctx.strokeStyle = `rgb(${Math.random()*255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+        ctx.lineWidth = Math.random() * 10;
+
+        //押下フラグ
+        isdrawing = true;
+      });
+
+      //描画中
+      cvs.addEventListener("mousemove", function (e) {
+        //マウスを押しているかどうか
+        if (isdrawing) {
+          //線分を描画
+          var x = e.layerX;
+          var y = e.layerY;
+
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+
+          lastX = x;
+          lastY = y;
+        }
+      });
+
+      //描画の終了
+      function finishDrawing() {
+        isdrawing = false;
+      }
+      cvs.addEventListener("mouseup", finishDrawing);
+      cvs.addEventListener("mouseout", finishDrawing);
+    })();
+  </script>
+</body>
+</html>

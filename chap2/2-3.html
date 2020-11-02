@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-3</title>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var cvs = document.createElement("canvas");
+      cvs.width = 500;
+      cvs.height = 500;
+      document.getElementById('container').appendChild(cvs);
+      var ctx = cvs.getContext("2d");
+
+      const r1 = 220, r2 = 240;
+      const imgdata = ctx.getImageData(0, 0, cvs.width, cvs.height);
+
+      let i = 0;
+      for (let y = 0; y < cvs.height; y++) {
+        const new_y = y - cvs.height / 2;
+        for (let x = 0; x < cvs.width; x++) {
+          const new_x = x - cvs.width / 2;
+          const d = Math.pow(new_x, 2) + Math.pow(new_y, 2);
+          if (Math.pow(r1, 2) <= d && Math.pow(r2, 2) >= d) {
+            imgdata.data[i] = 0;
+            imgdata.data[i + 1] = 0;
+            imgdata.data[i + 2] = 0;
+          } else {
+            imgdata.data[i] = 255;
+            imgdata.data[i + 1] = 255;
+            imgdata.data[i + 2] = 255;
+          }
+          imgdata.data[i + 3] = 255;
+          i += 4;
+        }
+      }
+
+      ctx.putImageData(imgdata, 0, 0);
+    </script>
+  </body>
+
+</html>
